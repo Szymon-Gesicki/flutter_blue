@@ -9,6 +9,9 @@ class BluetoothDevice {
   final String name;
   final BluetoothDeviceType type;
 
+  final _failedConnectBroadcast = StreamController<void>.broadcast();
+  Stream<void> get failedConnectStream => _failedConnectBroadcast.stream;
+
   BluetoothDevice.fromProto(protos.BluetoothDevice p)
       : id = new DeviceIdentifier(p.remoteId),
         name = p.name,
@@ -30,6 +33,7 @@ class BluetoothDevice {
     if (timeout != null) {
       timer = Timer(timeout, () {
         disconnect();
+        _failedConnectBroadcast.add(null);
         throw TimeoutException('Failed to connect in time.', timeout);
       });
     }
