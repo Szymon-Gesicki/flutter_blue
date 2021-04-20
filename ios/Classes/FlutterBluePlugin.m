@@ -48,7 +48,6 @@ typedef NS_ENUM(NSUInteger, LogLevel) {
   FlutterEventChannel* stateChannel = [FlutterEventChannel eventChannelWithName:NAMESPACE @"/state" binaryMessenger:[registrar messenger]];
   FlutterBluePlugin* instance = [[FlutterBluePlugin alloc] init];
   instance.channel = channel;
-  instance.centralManager = [[CBCentralManager alloc] initWithDelegate:instance queue:nil];
   instance.scannedPeripherals = [NSMutableDictionary new];
   instance.servicesThatNeedDiscovered = [NSMutableArray new];
   instance.characteristicsThatNeedDiscovered = [NSMutableArray new];
@@ -83,6 +82,10 @@ typedef NS_ENUM(NSUInteger, LogLevel) {
       result(@(NO));
     }
   } else if([@"startScan" isEqualToString:call.method]) {
+    
+    if (self->_centralManager == NULL) {
+        self->_centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
+    }
     // Clear any existing scan results
     [self.scannedPeripherals removeAllObjects];
     // TODO: Request Permission?
